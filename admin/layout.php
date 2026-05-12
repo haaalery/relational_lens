@@ -1,16 +1,9 @@
 <?php
 // admin/layout.php
+require_once __DIR__ . '/auth_check.php';
 require_once __DIR__ . '/../config/security.php';
 
 function render_admin_header($title, $active_page) {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 'reviewer'])) {
-        header("Location: ../login.php");
-        exit;
-    }
-    
     $csrf_token = generate_csrf_token();
 ?>
 <!DOCTYPE html>

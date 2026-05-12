@@ -40,37 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$extra_head = '
-    <style>
-        .auth-wrapper {
-            background-image: linear-gradient(rgba(14, 58, 71, 0.8), rgba(14, 58, 71, 0.6)), url("https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=2000&auto=format&fit=crop");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 8rem 0 5rem; /* Increased top padding for floating navbar */
-        }
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 3.5rem;
-            color: var(--charcoal);
-        }
-        [data-theme="dark"] .auth-card {
-            background: rgba(14, 42, 51, 0.9);
-            color: var(--offwhite);
-            border-color: rgba(255,255,255,0.1);
-        }
-    </style>
-';
-
-render_header("Sign In", "login", $extra_head);
+render_header("Sign In", "login");
 ?>
 
     <div class="auth-wrapper">

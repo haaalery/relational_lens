@@ -27,11 +27,11 @@ This checklist tracks the implementation of security, stability, and architectur
     - *Why:* Ensures that if an error occurs during submission, no "partial" or broken data is left in the database.
 
 ## Phase 3: Architecture & Standardization
-- [ ] **Centralize Environment Configuration (`.env`)**
+- [x] **Centralize Environment Configuration (`.env`)**
     - *Why:* Keeps your database password out of the code files for better security.
-- [ ] **Verify Admin Authorization (`admin/*.php`)**
+- [x] **Verify Admin Authorization (`admin/*.php`)**
     - *Why:* Double-checks that only authorized users can access administrative tools.
-- [ ] **Standardize Asset Injection**
+- [x] **Standardize Asset Injection**
     - *Why:* Makes the code cleaner and easier to manage as the project grows.
 
 ## Phase 4: UI/UX & Functional Polish

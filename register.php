@@ -59,37 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$extra_head = '
-    <style>
-        .auth-wrapper {
-            background-image: linear-gradient(rgba(30, 91, 106, 0.8), rgba(30, 91, 106, 0.6)), url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000&auto=format&fit=crop");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 8rem 0 5rem; /* Increased top padding for floating navbar */
-        }
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 3.5rem;
-            color: var(--charcoal);
-        }
-        [data-theme="dark"] .auth-card {
-            background: rgba(14, 42, 51, 0.9);
-            color: var(--offwhite);
-            border-color: rgba(255,255,255,0.1);
-        }
-    </style>
-';
-
-render_header("Join the Collective", "register", $extra_head);
+render_header("Join the Collective", "register");
 ?>
 
     <div class="auth-wrapper">
