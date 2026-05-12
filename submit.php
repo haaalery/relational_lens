@@ -45,7 +45,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
             throw new Exception("Invalid thumbnail image URL format.");
         }
 
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $base_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $slug = $base_slug;
+        $counter = 1;
+        while (true) {
+            $checkStmt = $pdo->prepare("SELECT id FROM stories WHERE slug = ?");
+            $checkStmt->execute([$slug]);
+            if (!$checkStmt->fetch()) break;
+            $slug = $base_slug . '-' . $counter;
+            $counter++;
+        }
+
         $transcript = $_POST['transcript'] ?? '';
         $language = $_POST['language'] ?? 'English';
         $subtitles = isset($_POST['subtitles']) ? 1 : 0;

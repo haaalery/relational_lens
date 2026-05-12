@@ -19,11 +19,11 @@ This checklist tracks the implementation of security, stability, and architectur
     - *Why:* Ensures that data is valid even if a user bypasses the browser's "required" fields.
 
 ## Phase 2: Database & Core Logic
-- [ ] **Enforce Unique Slugs (`relational_lens.sql`)**
+- [x] **Enforce Unique Slugs (`relational_lens.sql`)**
     - *Why:* Prevents multiple stories from having the same URL, which would cause confusion.
-- [ ] **Handle Slug Collisions (`submit.php`, `submit_article.php`)**
+- [x] **Handle Slug Collisions (`submit.php`, `submit_article.php`)**
     - *Why:* Automatically fixes duplicate titles by adding a suffix (e.g., `my-story-2`) instead of crashing the site.
-- [ ] **Add Transaction Support (`submit_article.php`)**
+- [x] **Add Transaction Support (`submit_article.php`)**
     - *Why:* Ensures that if an error occurs during submission, no "partial" or broken data is left in the database.
 
 ## Phase 3: Architecture & Standardization

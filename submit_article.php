@@ -47,7 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Invalid image URL format.");
         }
 
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $base_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        $slug = $base_slug;
+        $counter = 1;
+        while (true) {
+            $checkStmt = $pdo->prepare("SELECT id FROM articles WHERE slug = ?");
+            $checkStmt->execute([$slug]);
+            if (!$checkStmt->fetch()) break;
+            $slug = $base_slug . '-' . $counter;
+            $counter++;
+        }
+
+        $pdo->beginTransaction();
 
         $sql = "INSERT INTO articles (author_id, title, slug, excerpt, content, image_url, category_id, related_story_id, status) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
@@ -57,10 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $author_id, $title, $slug, $excerpt, $content, $image_url, $category_id, $related_story_id
         ]);
 
+        $pdo->commit();
+
         $message = "Your article has been submitted for peer review! You can see its status on your profile.";
         $messageType = "success";
 
     } catch (Exception $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
         $message = "Error: " . $e->getMessage();
         $messageType = "danger";
     }

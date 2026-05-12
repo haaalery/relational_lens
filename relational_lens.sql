@@ -298,7 +298,10 @@ ALTER TABLE `reviews`
 -- Indexes for table `stories`
 --
 ALTER TABLE `stories`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`),
+  ADD KEY `region_id` (`region_id`),
+  ADD KEY `category_id` (`category_id`);
 
 --
 -- Indexes for table `story_classroom`
