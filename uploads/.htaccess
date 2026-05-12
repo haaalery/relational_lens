@@ -1,0 +1,9 @@
+# Disable PHP execution in the uploads directory for security
+<Files *.php>
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Prevent script execution even if renamed
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps .pl .py .cgi .asp .aspx
+Options -ExecCGI -Indexes

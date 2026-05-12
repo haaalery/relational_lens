@@ -1,6 +1,7 @@
 <?php
 require_once 'header.php';
 require_once 'config/security.php';
+require_once 'config/uploads.php';
 
 // Fetch regions and categories for dropdowns
 try {
@@ -31,8 +32,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
         $title = trim($_POST['title'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $video_url = trim($_POST['video_url'] ?? '');
-        $thumbnail_url = trim($_POST['thumbnail_url'] ?? '');
+        $thumbnail_url = ''; 
         
+        // Handle Thumbnail Upload
+        if (isset($_FILES['thumbnail_file']) && $_FILES['thumbnail_file']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = upload_image($_FILES['thumbnail_file'], 'uploads/stories/');
+            if ($upload_result['success']) {
+                $thumbnail_url = $upload_result['path'];
+            } else {
+                throw new Exception("Thumbnail Upload Error: " . $upload_result['message']);
+            }
+        }
+
         if (empty($title) || empty($description) || empty($video_url)) {
             throw new Exception("Title, description, and video URL are required.");
         }
@@ -41,10 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
             throw new Exception("Invalid video URL format.");
         }
         
-        if (!empty($thumbnail_url) && !filter_var($thumbnail_url, FILTER_VALIDATE_URL)) {
-            throw new Exception("Invalid thumbnail image URL format.");
-        }
-
         $base_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
         $slug = $base_slug;
         $counter = 1;
@@ -196,8 +203,9 @@ render_header("Submit Story", "submit", $extra_head);
                                     <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/..." required>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label small fw-bold">Thumbnail Image URL</label>
-                                    <input type="url" name="thumbnail_url" class="form-control" placeholder="https://images.unsplash.com/...">
+                                    <label class="form-label small fw-bold">Thumbnail Image</label>
+                                    <input type="file" name="thumbnail_file" class="form-control" accept="image/*">
+                                    <small class="text-muted">Max size: 5MB. Formats: JPG, PNG, WEBP.</small>
                                 </div>
                             </div>
                             <div class="mb-3">

@@ -1,6 +1,7 @@
 <?php
 require_once 'header.php';
 require_once 'config/security.php';
+require_once 'config/uploads.php';
 
 // Security: Only logged-in users can submit articles
 if (!isset($_SESSION['user_id'])) {
@@ -33,20 +34,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = trim($_POST['title'] ?? '');
         $excerpt = trim($_POST['excerpt'] ?? '');
         $content = trim($_POST['content'] ?? '');
-        $image_url = trim($_POST['image_url'] ?? '');
+        $image_url = ''; 
         $category_id = $_POST['category_id'] ?: null;
         $related_story_id = $_POST['related_story_id'] ?: null;
         $author_id = $_SESSION['user_id'];
+
+        // Handle Image Upload
+        if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = upload_image($_FILES['image_file'], 'uploads/articles/');
+            if ($upload_result['success']) {
+                $image_url = $upload_result['path'];
+            } else {
+                throw new Exception("Image Upload Error: " . $upload_result['message']);
+            }
+        }
 
         // Basic validation
         if (empty($title) || empty($content) || empty($excerpt)) {
             throw new Exception("Title, excerpt, and content are required.");
         }
         
-        if (!empty($image_url) && !filter_var($image_url, FILTER_VALIDATE_URL)) {
-            throw new Exception("Invalid image URL format.");
-        }
-
         $base_slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
         $slug = $base_slug;
         $counter = 1;
@@ -112,7 +119,7 @@ render_header("Submit Article", "submit_article", $extra_head);
                     </div>
                 <?php endif; ?>
 
-                <form id="submissionForm" method="POST" class="form-card reveal">
+                <form id="submissionForm" method="POST" class="form-card reveal" enctype="multipart/form-data">
                     <?php csrf_input(); ?>
                     
                     <div class="step-indicator">
@@ -158,8 +165,9 @@ render_header("Submit Article", "submit_article", $extra_head);
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Featured Image URL</label>
-                            <input type="url" name="image_url" id="image_url" class="form-control" placeholder="https://images.unsplash.com/...">
+                            <label class="form-label small fw-bold">Featured Image</label>
+                            <input type="file" name="image_file" id="image_file" class="form-control" accept="image/*">
+                            <small class="text-muted">Max size: 5MB. Formats: JPG, PNG, WEBP.</small>
                         </div>
                         <div class="text-end mt-4">
                             <button type="button" class="btn btn-terracotta px-5 rounded-pill next-step" data-next="2">Next: Content &rarr;</button>

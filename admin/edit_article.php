@@ -1,6 +1,7 @@
 <?php
 require_once 'auth_check.php';
 require_once '../config/db.php';
+require_once '../config/uploads.php';
 session_start();
 require_once 'layout.php';
 
@@ -26,10 +27,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = $_POST['title'];
         $excerpt = $_POST['excerpt'];
         $content = $_POST['content'];
-        $image_url = $_POST['image_url'];
+        $image_url = $_POST['current_image_url'] ?? ''; 
         $category_id = $_POST['category_id'] ?: null;
         $related_story_id = $_POST['related_story_id'] ?: null;
         $status = $_POST['status'];
+
+        // Handle Image Upload
+        if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = upload_image($_FILES['image_file'], '../uploads/articles/');
+            if ($upload_result['success']) {
+                $image_url = 'uploads/articles/' . basename($upload_result['path']);
+            } else {
+                throw new Exception("Image Upload Error: " . $upload_result['message']);
+            }
+        }
 
         $stmt = $pdo->prepare("UPDATE articles SET 
             title = ?, excerpt = ?, content = ?, image_url = ?, 
@@ -43,6 +54,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $message = "Article updated successfully!";
         $messageType = "success";
+        
+        // Refresh data
+        $stmt = $pdo->prepare("SELECT * FROM articles WHERE id = ?");
+        $stmt->execute([$id]);
+        $article = $stmt->fetch();
+
     } catch (Exception $e) {
         $message = "Error updating article: " . $e->getMessage();
         $messageType = "danger";
@@ -83,8 +100,9 @@ render_admin_header("Edit Article", "settings");
 <?php endif; ?>
 
 <div class="admin-card">
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <?php csrf_input(); ?>
+        <input type="hidden" name="current_image_url" value="<?= htmlspecialchars($article['image_url']) ?>">
         <div class="row g-4">
             <!-- Left Column: Primary Content -->
             <div class="col-lg-8">
@@ -108,10 +126,16 @@ render_admin_header("Edit Article", "settings");
             <!-- Right Column: Metadata & Media -->
             <div class="col-lg-4">
                 <div class="bg-light p-4 rounded-4 mb-4">
-                    <h5 class="playfair mb-3">Media Links</h5>
+                    <h5 class="playfair mb-3">Featured Image</h5>
+                    <?php if ($article['image_url']): ?>
+                        <div class="mb-3">
+                            <img src="../<?= htmlspecialchars($article['image_url']) ?>" alt="Current Image" class="img-thumbnail w-100" style="max-height: 200px; object-fit: cover;">
+                        </div>
+                    <?php endif; ?>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Header Image URL</label>
-                        <input type="url" name="image_url" class="form-control form-control-sm" value="<?= htmlspecialchars($article['image_url']) ?>" required>
+                        <label class="form-label small fw-bold">Upload New Image</label>
+                        <input type="file" name="image_file" class="form-control form-control-sm" accept="image/*">
+                        <small class="text-muted d-block mt-1">Leave empty to keep current image. Max 5MB.</small>
                     </div>
                 </div>
 

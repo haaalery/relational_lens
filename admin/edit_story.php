@@ -1,6 +1,7 @@
 <?php
 require_once 'auth_check.php';
 require_once '../config/db.php';
+require_once '../config/uploads.php';
 session_start();
 require_once 'layout.php';
 
@@ -27,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $transcript = $_POST['transcript'];
         $video_url = $_POST['video_url'];
-        $thumbnail_url = $_POST['thumbnail_url'];
+        $thumbnail_url = $_POST['current_thumbnail_url'] ?? ''; 
         $category_id = $_POST['category_id'];
         $region_id = $_POST['region_id'];
         $status = $_POST['status'];
@@ -38,6 +39,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $f_bio = $_POST['f_bio'];
         $community_credit = $_POST['community_credit'];
         $decolonial_tags = json_encode($_POST['decolonial_tags'] ?? []);
+
+        // Handle Thumbnail Upload
+        if (isset($_FILES['thumbnail_file']) && $_FILES['thumbnail_file']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = upload_image($_FILES['thumbnail_file'], '../uploads/stories/');
+            if ($upload_result['success']) {
+                $thumbnail_url = 'uploads/stories/' . basename($upload_result['path']);
+            } else {
+                throw new Exception("Thumbnail Upload Error: " . $upload_result['message']);
+            }
+        }
 
         $stmt = $pdo->prepare("UPDATE stories SET 
             title = ?, description = ?, transcript = ?, video_url = ?, 
@@ -57,6 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $message = "Story updated successfully!";
         $messageType = "success";
+        
+        // Refresh data
+        $stmt = $pdo->prepare("SELECT * FROM stories WHERE id = ?");
+        $stmt->execute([$id]);
+        $story = $stmt->fetch();
+
     } catch (Exception $e) {
         $message = "Error updating story: " . $e->getMessage();
         $messageType = "danger";
@@ -99,8 +116,9 @@ render_admin_header("Edit Story", "settings");
 <?php endif; ?>
 
 <div class="admin-card">
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <?php csrf_input(); ?>
+        <input type="hidden" name="current_thumbnail_url" value="<?= htmlspecialchars($story['thumbnail_url']) ?>">
         <div class="row g-4">
             <!-- Left Column: Primary Content -->
             <div class="col-lg-8">
@@ -146,15 +164,22 @@ render_admin_header("Edit Story", "settings");
             <!-- Right Column: Metadata & Media -->
             <div class="col-lg-4">
                 <div class="bg-light p-4 rounded-4 mb-4">
-                    <h5 class="playfair mb-3">Media Links</h5>
+                    <h5 class="playfair mb-3">Media</h5>
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Video URL (YouTube/Vimeo)</label>
                         <input type="url" name="video_url" class="form-control form-control-sm" value="<?= htmlspecialchars($story['video_url']) ?>" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Thumbnail URL</label>
-                        <input type="url" name="thumbnail_url" class="form-control form-control-sm" value="<?= htmlspecialchars($story['thumbnail_url']) ?>" required>
-                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <label class="form-label small fw-bold d-block">Thumbnail Image</label>
+                    <?php if ($story['thumbnail_url']): ?>
+                        <div class="mb-3">
+                            <img src="../<?= htmlspecialchars($story['thumbnail_url']) ?>" alt="Current Thumbnail" class="img-thumbnail w-100" style="max-height: 150px; object-fit: cover;">
+                        </div>
+                    <?php endif; ?>
+                    <input type="file" name="thumbnail_file" class="form-control form-control-sm" accept="image/*">
+                    <small class="text-muted d-block mt-1">Leave empty to keep current image. Max 5MB.</small>
                 </div>
 
                 <div class="bg-light p-4 rounded-4 mb-4">

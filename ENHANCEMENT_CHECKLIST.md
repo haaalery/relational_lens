@@ -40,5 +40,13 @@ This checklist tracks the implementation of security, stability, and architectur
 - [x] **Improve Empty States (index, archive)**
     - *Why:* Provides a professional look even when there is no content to show yet.
 
+## Phase 5: Media & Functional Upgrades
+- [x] **Implement Image Upload System**
+    - *Why:* Replaces manual URL inputs with a secure file upload system for thumbnails and featured images.
+- [ ] **Real Password Recovery System**
+    - *Why:* Allows users to reset their own passwords securely via email.
+- [ ] **Scholarly Article Search**
+    - *Why:* Improves discoverability of content in The Gallery.
+
 ---
 *Created on May 12, 2026*
