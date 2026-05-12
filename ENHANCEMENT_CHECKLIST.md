@@ -35,9 +35,9 @@ This checklist tracks the implementation of security, stability, and architectur
     - *Why:* Makes the code cleaner and easier to manage as the project grows.
 
 ## Phase 4: UI/UX & Functional Polish
-- [ ] **Update "Forgot Password" Link (`login.php`)**
+- [x] **Update "Forgot Password" Link (`login.php`)**
     - *Why:* Fixes a broken link to improve user experience.
-- [ ] **Improve Empty States (index, archive)**
+- [x] **Improve Empty States (index, archive)**
     - *Why:* Provides a professional look even when there is no content to show yet.
 
 ---

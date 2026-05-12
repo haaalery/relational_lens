@@ -50,7 +50,10 @@ render_header("The Gallery", "gallery");
         <div class="row g-4 reveal">
             <?php if (empty($articles)): ?>
                 <div class="col-12 text-center py-5">
-                    <p class="text-muted">No scholarly articles have been published yet.</p>
+                    <i class="bi bi-journal-richtext display-1 text-muted opacity-25 mb-4 d-block"></i>
+                    <h3 class="playfair fw-bold text-muted">Awaiting Reflections</h3>
+                    <p class="text-muted">The gallery is currently being curated. Check back soon for new scholarly insights.</p>
+                    <a href="submit_article.php" class="btn btn-terracotta rounded-pill px-4 mt-3">Submit an Article</a>
                 </div>
             <?php else: ?>
                 <?php foreach ($articles as $art): ?>

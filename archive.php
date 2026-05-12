@@ -149,9 +149,10 @@ render_header("Living Archive", "archive");
         <div class="row g-4 reveal">
             <?php if (empty($stories)): ?>
                 <div class="col-12 text-center py-5">
-                    <i class="bi bi-search display-1 text-muted opacity-25 mb-4"></i>
-                    <h3 class="playfair">No stories found</h3>
-                    <p class="text-muted">Try adjusting your filters or search keywords.</p>
+                    <i class="bi bi-search display-1 text-muted opacity-25 mb-4 d-block"></i>
+                    <h3 class="playfair fw-bold text-muted">The Archive is Quiet</h3>
+                    <p class="text-muted">No stories matched your current search filters.</p>
+                    <a href="archive.php" class="btn btn-navy text-white rounded-pill mt-3" style="background-color: var(--navy);">Reset All Filters</a>
                 </div>
             <?php else: ?>
                 <?php foreach ($stories as $story): ?>

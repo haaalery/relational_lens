@@ -70,7 +70,9 @@ render_header("Home", "home", $leaflet_css);
             <div class="row g-4">
                 <?php if (empty($featuredStories)): ?>
                     <div class="col-12 text-center py-5">
-                        <p class="text-muted">No featured stories yet. Explore the <a href="archive.php">full archive</a>.</p>
+                        <i class="bi bi-camera-reels display-1 text-muted opacity-25 mb-4 d-block"></i>
+                        <h3 class="playfair fw-bold text-muted">Awaiting Narratives</h3>
+                        <p class="text-muted">New featured stories will be appearing here shortly. Explore the <a href="archive.php" class="text-terracotta fw-bold">full archive</a>.</p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($featuredStories as $story): ?>
@@ -146,8 +148,10 @@ render_header("Home", "home", $leaflet_css);
 
             <div class="row g-4">
                 <?php if (empty($articles)): ?>
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No articles found. Be the first to <a href="submit_article.php">contribute</a>.</p>
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-journal-text display-1 text-muted opacity-25 d-block mb-4"></i>
+                        <h3 class="playfair fw-bold text-muted">Awaiting Reflections</h3>
+                        <p class="text-muted mb-4">No articles found. Be the first to <a href="submit_article.php" class="text-terracotta fw-bold">contribute</a>.</p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($articles as $article): ?>
