@@ -5,6 +5,30 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once __DIR__ . '/config/db.php';
 
+// Security Headers
+header("X-Frame-Options: DENY");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
+
+// Strict-Transport-Security (Only if HTTPS is detected or in production)
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
+}
+
+// Content Security Policy
+// Allowing trusted CDNs: Bootstrap, Google Fonts, Leaflet/Unpkg, Unsplash (images), YouTube, and Vimeo
+$csp = "default-src 'self'; ";
+$csp .= "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net unpkg.com; ";
+$csp .= "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com unpkg.com; ";
+$csp .= "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net; ";
+$csp .= "img-src 'self' data: images.unsplash.com tile.openstreetmap.org *.basemaps.cartocdn.com; ";
+$csp .= "connect-src 'self' *.basemaps.cartocdn.com *.vimeo.com *.youtube.com; ";
+$csp .= "frame-src 'self' player.vimeo.com www.youtube.com www.youtube-nocookie.com; ";
+$csp .= "child-src 'self' player.vimeo.com www.youtube.com; ";
+$csp .= "frame-ancestors 'none';";
+header("Content-Security-Policy: " . $csp);
+
 function render_header($title = "Relational Lens", $active_page = "home", $extra_head = "") {
 ?>
 <!DOCTYPE html>
@@ -20,8 +44,8 @@ function render_header($title = "Relational Lens", $active_page = "home", $extra
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     
     <!-- Bootstrap & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css?v=1.2">
@@ -36,15 +60,18 @@ function render_header($title = "Relational Lens", $active_page = "home", $extra
         })();
     </script>
 </head>
-<body>
+<body class="theme-aware">
 
-    <nav class="navbar navbar-expand-lg sticky-top">
+    <!-- Skip to Content Link (Accessibility) -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <nav class="navbar navbar-expand-lg sticky-top" aria-label="Main navigation">
         <div class="container">
-            <a class="navbar-brand animate-up" href="index.php">
-                <div class="nav-logo-wrapper"><img src="logo.png" alt="Relational Lens Logo"></div>
+            <a class="navbar-brand animate-up" href="index.php" aria-label="Relational Lens Home">
+                <div class="nav-logo-wrapper"><img src="logo.png" alt=""></div>
                 RELATIONAL LENS
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -58,10 +85,10 @@ function render_header($title = "Relational Lens", $active_page = "home", $extra
                     <li class="nav-item"><a class="nav-link <?= $active_page == 'map' ? 'active' : '' ?>" href="map.php">Map</a></li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle <?= ($active_page == 'submit' || $active_page == 'submit_article') ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle <?= ($active_page == 'submit' || $active_page == 'submit_article') ? 'active' : '' ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Submit
                         </a>
-                        <ul class="dropdown-menu border-0 shadow-lg" style="min-width: 280px;">
+                        <ul class="dropdown-menu border-0 shadow-lg" style="min-width: 280px;" aria-label="Submission options">
                             <li>
                                 <a class="dropdown-item mb-2" href="submit.php">
                                     <div class="d-flex align-items-center">
@@ -93,10 +120,10 @@ function render_header($title = "Relational Lens", $active_page = "home", $extra
                     
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="nav-item dropdown ms-lg-3">
-                            <a class="nav-link dropdown-toggle btn-signin" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle btn-signin" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Hi, <?= htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]) ?>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" style="min-width: 240px;">
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" style="min-width: 240px;" aria-label="User account menu">
                                 <li>
                                     <a class="dropdown-item mb-2" href="profile.php?id=<?= $_SESSION['user_id'] ?>">
                                         <div class="d-flex align-items-center">
@@ -149,9 +176,9 @@ function render_header($title = "Relational Lens", $active_page = "home", $extra
                     <?php endif; ?>
                     
                     <li class="nav-item">
-                        <div id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode">
-                            <i class="bi bi-moon-stars-fill"></i>
-                            <i class="bi bi-sun-fill"></i>
+                        <div id="theme-toggle" class="theme-toggle" title="Toggle Dark/Light Mode" role="button" tabindex="0" aria-label="Toggle dark and light theme">
+                            <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+                            <i class="bi bi-sun-fill" aria-hidden="true"></i>
                         </div>
                     </li>
                 </ul>
@@ -195,7 +222,7 @@ function render_footer($extra_scripts = "") {
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="assets/js/main.js?v=1.2"></script>
     <?= $extra_scripts ?>
 </body>

@@ -19,7 +19,7 @@ try {
 }
 
 $extra_head = '
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
         body, html {
             height: 100%;
@@ -105,12 +105,13 @@ render_header("Global Story Map", "map", $extra_head);
         </div>
     </div>
 
+    <div id="main-content"></div>
     <!-- Leaflet Map -->
     <div id="map"></div>
 
 <?php
 $map_scripts = '
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         const theme = document.documentElement.getAttribute("data-theme") || "light";
         const map = L.map("map", {

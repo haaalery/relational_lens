@@ -43,10 +43,26 @@ This checklist tracks the implementation of security, stability, and architectur
 ## Phase 5: Media & Functional Upgrades
 - [x] **Implement Image Upload System**
     - *Why:* Replaces manual URL inputs with a secure file upload system for thumbnails and featured images.
-- [ ] **Real Password Recovery System**
+- [x] **Real Password Recovery System**
     - *Why:* Allows users to reset their own passwords securely via email.
-- [ ] **Scholarly Article Search**
+- [x] **Scholarly Article Search**
     - *Why:* Improves discoverability of content in The Gallery.
+
+## Phase 6: Security Hardening & Enterprise Posture
+- [x] **Implement Advanced Security Headers**
+    - *Why:* Protects against XSS, Clickjacking, and MIME-sniffing via CSP, HSTS, and X-Frame-Options.
+- [x] **Add Subresource Integrity (SRI)**
+    - *Why:* Ensures that third-party scripts (Bootstrap, Leaflet) haven't been tampered with on their CDNs.
+- [x] **Global Accessibility (A11y) Sweep**
+    - *Why:* Ensures the site is inclusive and usable for people with disabilities (Screen readers, Keyboard navigation).
+
+## Phase 7: The Insights Layer & Final Polish
+- [x] **Automated Admin Notifications**
+    - *Why:* Alerts administrators immediately when new content is submitted for review.
+- [x] **Data-Driven Insights Dashboard**
+    - *Why:* Visualizes the archive's impact and reach through interactive charts and metrics.
+- [x] **Final Performance & UI Polish**
+    - *Why:* Ensures a smooth, professional experience across all devices and themes.
 
 ---
 *Created on May 12, 2026*

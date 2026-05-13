@@ -68,7 +68,7 @@ render_header("Sign In", "login");
                             <div class="mb-4">
                                 <div class="d-flex justify-content-between">
                                     <label class="form-label small fw-bold">Password</label>
-                                    <a href="#" class="small text-decoration-none" onclick="alert('Please contact your administrator (admin@relational-lens.org) to reset your password.')">Forgot?</a>
+                                    <a href="forgot_password.php" class="small text-decoration-none">Forgot?</a>
                                 </div>
                                 <input type="password" name="password" class="form-control" placeholder="Your password" required>
                             </div>

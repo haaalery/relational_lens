@@ -32,11 +32,11 @@ try {
     $articles = [];
 }
 
-$leaflet_css = '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />';
+$leaflet_css = '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />';
 render_header("Home", "home", $leaflet_css);
 ?>
 
-<section class="hero" style="background: url('relationalb.png') center top / cover no-repeat; position: relative;"> 
+<section id="main-content" class="hero" style="background: url('relationalb.png') center top / cover no-repeat; position: relative;"> 
     <div class="container" style="z-index: 2; position: relative; height: 100%; display: flex; align-items: center;"> 
         
 <div class="hero-content text-start pt-5" style="max-width: 700px; text-shadow: 0px 4px 20px rgba(0,0,0,0.6);"> 
@@ -233,7 +233,7 @@ render_header("Home", "home", $leaflet_css);
 
 <?php 
 $map_scripts = '
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         const theme = document.documentElement.getAttribute("data-theme") || "light";
         const map = L.map("map").setView([20, 0], 2);

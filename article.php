@@ -109,7 +109,7 @@ render_header($article['title'], "gallery", $extra_head);
         </div>
     </header>
 
-    <main class="container py-5">
+    <main id="main-content" class="container py-5">
         <div class="row g-5">
             <!-- Left Column: Content -->
             <div class="col-lg-8">

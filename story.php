@@ -124,7 +124,7 @@ render_header($story['title'], "archive", $extra_head);
         </div>
     </section>
 
-    <main class="container py-5 mt-4">
+    <main id="main-content" class="container py-5 mt-4">
         <div class="row g-5">
             <!-- Left Column: Story Content -->
             <div class="col-lg-8">

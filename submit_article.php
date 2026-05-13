@@ -77,6 +77,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $pdo->commit();
 
+        // Send Notification to Admin
+        require_once 'config/mail.php';
+        $adminEmail = getenv('ADMIN_EMAIL') ?: getenv('MAIL_FROM');
+        if ($adminEmail) {
+            $adminSubject = "New Article Submission: " . $title;
+            $adminBody = "
+                <div style='font-family: sans-serif; padding: 20px; border: 1px solid #eee;'>
+                    <h2 style='color: #0E3A47;'>New Article Pending Peer Review</h2>
+                    <p><strong>Title:</strong> $title</p>
+                    <p><strong>Author:</strong> " . ($_SESSION['user_name'] ?? 'A member') . "</p>
+                    <p><strong>Category:</strong> " . ($_POST['category_id'] ?? 'Unknown') . "</p>
+                    <hr style='border: 0; border-top: 1px solid #eee;'>
+                    <p>Please log in to the Review Queue to approve or reject this submission.</p>
+                    <a href='http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/admin/queue.php' 
+                       style='background: #0E3A47; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Open Review Queue</a>
+                </div>
+            ";
+            send_mail($adminEmail, $adminSubject, $adminBody);
+        }
+
         $message = "Your article has been submitted for peer review! You can see its status on your profile.";
         $messageType = "success";
 
@@ -109,7 +129,7 @@ render_header("Submit Article", "submit_article", $extra_head);
         </div>
     </section>
 
-    <main class="container mb-5 pb-5">
+    <main id="main-content" class="container mb-5 pb-5">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <?php if ($message): ?>

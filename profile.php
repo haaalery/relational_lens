@@ -19,15 +19,41 @@ try {
         exit;
     }
 
-    // Fetch Stories by this filmmaker (matching by email for now)
-    $storyStmt = $pdo->prepare("SELECT s.*, r.name as region_name, c.name as category_name 
-                                FROM stories s
-                                LEFT JOIN regions r ON s.region_id = r.id
-                                LEFT JOIN categories c ON s.category_id = c.id
-                                WHERE s.filmmaker_email = ? AND s.status = 'approved'
-                                ORDER BY s.created_at DESC");
+    // Fetch Stories by this filmmaker
+    $isOwnProfile = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user_id);
+    
+    // Logic for Story visibility
+    $storyQuery = "SELECT s.*, r.name as region_name, c.name as category_name 
+                    FROM stories s
+                    LEFT JOIN regions r ON s.region_id = r.id
+                    LEFT JOIN categories c ON s.category_id = c.id
+                    WHERE s.filmmaker_email = ?";
+    
+    if (!$isOwnProfile) {
+        $storyQuery .= " AND s.status = 'approved'";
+    }
+    
+    $storyQuery .= " ORDER BY s.created_at DESC";
+    
+    $storyStmt = $pdo->prepare($storyQuery);
     $storyStmt->execute([$user['email']]);
     $userStories = $storyStmt->fetchAll();
+
+    // Fetch Articles by this author
+    $articleQuery = "SELECT a.*, c.name as category_name 
+                      FROM articles a
+                      LEFT JOIN categories c ON a.category_id = c.id
+                      WHERE a.author_id = ?";
+                      
+    if (!$isOwnProfile) {
+        $articleQuery .= " AND a.status = 'approved'";
+    }
+    
+    $articleQuery .= " ORDER BY a.created_at DESC";
+    
+    $articleStmt = $pdo->prepare($articleQuery);
+    $articleStmt->execute([$user_id]);
+    $userArticles = $articleStmt->fetchAll();
 
 } catch (PDOException $e) {
     error_log($e->getMessage());
@@ -73,6 +99,17 @@ $extra_head = '
         [data-theme="dark"] .profile-hero {
             background-color: #050f14;
         }
+        .status-badge {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 0.3rem 0.6rem;
+            border-radius: 50px;
+            letter-spacing: 0.5px;
+        }
+        .badge-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .badge-approved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge-rejected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 ';
 
@@ -100,7 +137,7 @@ render_header($user['name'], "profile", $extra_head);
         <div class="divider-line"></div>
     </div>
 
-    <main class="container profile-container mb-5 pb-5">
+    <main id="main-content" class="container profile-container mb-5 pb-5">
         <div class="row g-4">
             <!-- Bio Section -->
             <div class="col-lg-4">
@@ -111,20 +148,23 @@ render_header($user['name'], "profile", $extra_head);
                     <hr class="my-4 opacity-10">
                     
                     <div class="small mb-2"><i class="bi bi-calendar3 me-2"></i> Joined: <?= date('F Y', strtotime($user['created_at'])) ?></div>
-                    <div class="small"><i class="bi bi-camera-reels me-2"></i> Contributions: <?= count($userStories) ?> Stories</div>
+                    <div class="small mb-2"><i class="bi bi-camera-reels me-2"></i> Stories: <?= count($userStories) ?></div>
+                    <div class="small"><i class="bi bi-journal-text me-2"></i> Articles: <?= count($userArticles) ?></div>
                 </div>
             </div>
 
             <!-- Contributions Section -->
             <div class="col-lg-8">
                 <div class="ps-lg-4">
-                    <h2 class="playfair fw-bold text-navy mb-4 reveal">Contributions</h2>
+                    <h2 class="playfair fw-bold text-navy mb-4 reveal"><?= $isOwnProfile ? 'My Submission History' : 'Contributions' ?></h2>
                     
-                    <div class="row g-4 reveal">
+                    <!-- Stories Grid -->
+                    <h5 class="text-muted small fw-bold text-uppercase mb-3 reveal">Documentary Stories</h5>
+                    <div class="row g-4 mb-5 reveal">
                         <?php if (empty($userStories)): ?>
                             <div class="col-12">
-                                <div class="p-5 bg-card rounded-4 text-center border" style="background: var(--card-bg); border: 1px solid var(--card-border);">
-                                    <p class="text-muted mb-0">This collective member hasn't published any stories yet.</p>
+                                <div class="p-4 bg-card rounded-4 text-center border" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+                                    <p class="text-muted small mb-0">No stories published yet.</p>
                                 </div>
                             </div>
                         <?php else: ?>
@@ -133,14 +173,59 @@ render_header($user['name'], "profile", $extra_head);
                                     <div class="story-card h-100">
                                         <div class="card-img-wrapper">
                                             <img src="<?= htmlspecialchars($story['thumbnail_url'] ?: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop') ?>" class="card-img-top">
-                                            <a href="story.php?slug=<?= $story['slug'] ?>" class="play-overlay"><i class="bi bi-play-circle"></i></a>
+                                            <?php if ($story['status'] === 'approved'): ?>
+                                                <a href="story.php?slug=<?= $story['slug'] ?>" class="play-overlay"><i class="bi bi-play-circle"></i></a>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="p-4 d-flex flex-column">
-                                            <div class="article-meta mb-2">
+                                            <div class="article-meta mb-2 d-flex justify-content-between align-items-center">
                                                 <span><?= htmlspecialchars($story['region_name']) ?></span>
+                                                <?php if ($isOwnProfile): ?>
+                                                    <span class="status-badge badge-<?= $story['status'] ?>"><?= $story['status'] ?></span>
+                                                <?php endif; ?>
                                             </div>
-                                            <h5 class="story-title"><?= htmlspecialchars($story['title']) ?></h5>
-                                            <a href="story.php?slug=<?= $story['slug'] ?>" class="btn-read mt-auto">Watch Story &rarr;</a>
+                                            <h5 class="story-title" style="font-size: 1.1rem;"><?= htmlspecialchars($story['title']) ?></h5>
+                                            <?php if ($story['status'] === 'approved'): ?>
+                                                <a href="story.php?slug=<?= $story['slug'] ?>" class="btn-read mt-auto">Watch Story &rarr;</a>
+                                            <?php else: ?>
+                                                <div class="mt-auto small text-muted italic">In Review</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Articles Grid -->
+                    <h5 class="text-muted small fw-bold text-uppercase mb-3 reveal">Scholarly Reflections</h5>
+                    <div class="row g-4 reveal">
+                        <?php if (empty($userArticles)): ?>
+                            <div class="col-12">
+                                <div class="p-4 bg-card rounded-4 text-center border" style="background: var(--card-bg); border: 1px solid var(--card-border);">
+                                    <p class="text-muted small mb-0">No articles published yet.</p>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <?php foreach ($userArticles as $article): ?>
+                                <div class="col-md-6">
+                                    <div class="story-card h-100">
+                                        <div class="card-img-wrapper">
+                                            <img src="<?= htmlspecialchars($article['image_url'] ?: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1000&auto=format&fit=crop') ?>" class="card-img-top">
+                                        </div>
+                                        <div class="p-4 d-flex flex-column">
+                                            <div class="article-meta mb-2 d-flex justify-content-between align-items-center">
+                                                <span><?= htmlspecialchars($article['category_name']) ?></span>
+                                                <?php if ($isOwnProfile): ?>
+                                                    <span class="status-badge badge-<?= $article['status'] ?>"><?= $article['status'] ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <h5 class="story-title" style="font-size: 1.1rem;"><?= htmlspecialchars($article['title']) ?></h5>
+                                            <?php if ($article['status'] === 'approved'): ?>
+                                                <a href="article.php?slug=<?= $article['slug'] ?>" class="btn-read mt-auto">Read Article &rarr;</a>
+                                            <?php else: ?>
+                                                <div class="mt-auto small text-muted italic">In Peer Review</div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>

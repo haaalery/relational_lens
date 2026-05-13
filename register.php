@@ -29,6 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 8) {
         $message = "Password must be at least 8 characters long.";
         $messageType = "danger";
+    } elseif (!preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/[0-9]/', $password)) {
+        $message = "Password must include at least one uppercase letter, one lowercase letter, and one number.";
+        $messageType = "danger";
     } elseif ($password !== $confirm_password) {
         $message = "Passwords do not match.";
         $messageType = "danger";

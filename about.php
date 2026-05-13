@@ -51,7 +51,7 @@ render_header("About Us", "about", $extra_head);
         </div>
     </header>
 
-    <main class="container py-5">
+    <main id="main-content" class="container py-5">
         <!-- Our Story -->
         <section class="row align-items-center py-5 mb-5 reveal">
             <div class="col-lg-6 mb-4 mb-lg-0">

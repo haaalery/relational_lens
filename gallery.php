@@ -1,21 +1,77 @@
 <?php
 require_once 'header.php';
 
+// Get filter parameters (matching archive.php naming where possible)
+$search_query = $_GET['q'] ?? '';
+$category_filter = $_GET['category'] ?? '';
+$region_filter = $_GET['region'] ?? '';
+$sort_by = $_GET['sort'] ?? 'newest';
+
+// Initialize variables for the UI
+$all_categories = [];
+$all_regions = [];
+$articles = [];
+
 try {
-    // Fetch all approved articles for the Gallery
-    $stmt = $pdo->query("
-        SELECT a.*, u.name as author_name, c.name as category_name, c.icon as category_icon
+    // 1. Fetch categories for the filter dropdown
+    $catStmt = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
+    $all_categories = $catStmt->fetchAll();
+
+    // 2. Fetch Regions for filter dropdown (Articles link to regions via related_story_id)
+    $regStmt = $pdo->query("SELECT * FROM regions ORDER BY name ASC");
+    $all_regions = $regStmt->fetchAll();
+
+    // 3. Build the query for articles
+    $query = "
+        SELECT a.*, u.name as author_name, c.name as category_name, c.icon as category_icon, c.slug as category_slug, r.name as region_name
         FROM articles a
         JOIN users u ON a.author_id = u.id
         LEFT JOIN categories c ON a.category_id = c.id
+        LEFT JOIN stories s ON a.related_story_id = s.id
+        LEFT JOIN regions r ON s.region_id = r.id
         WHERE a.status = 'approved'
-        ORDER BY a.created_at DESC
-    ");
+    ";
+    
+    $params = [];
+
+    if ($search_query !== '') {
+        $query .= " AND (a.title LIKE ? OR a.excerpt LIKE ? OR a.content LIKE ?)";
+        $searchTerm = "%$search_query%";
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+
+    if ($category_filter !== '') {
+        $query .= " AND c.slug = ?";
+        $params[] = $category_filter;
+    }
+
+    if ($region_filter !== '') {
+        $query .= " AND r.id = ?";
+        $params[] = $region_filter;
+    }
+
+    // Sorting logic (matching archive.php)
+    switch ($sort_by) {
+        case 'oldest':
+            $query .= " ORDER BY a.created_at ASC";
+            break;
+        case 'title':
+            $query .= " ORDER BY a.title ASC";
+            break;
+        case 'newest':
+        default:
+            $query .= " ORDER BY a.created_at DESC";
+            break;
+    }
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
     $articles = $stmt->fetchAll();
 
 } catch (PDOException $e) {
     error_log($e->getMessage());
-    $articles = [];
 }
 
 render_header("The Gallery", "gallery");
@@ -46,7 +102,54 @@ render_header("The Gallery", "gallery");
         <div class="divider-line"></div>
     </div>
 
-    <main class="container py-5">
+    <!-- Filter & Search Section (Exact match for archive.php layout) -->
+    <div class="container mb-5">
+        <div class="filter-section animate-up">
+            <form action="gallery.php" method="GET" class="row g-3 align-items-end">
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label small fw-bold">Search Keywords</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" class="form-control border-start-0" placeholder="e.g. Ethics, Witnessing..." value="<?= htmlspecialchars($search_query) ?>">
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label small fw-bold">Grand Challenge</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        <?php foreach ($all_categories as $cat): ?>
+                            <option value="<?= htmlspecialchars($cat['slug']) ?>" <?= $category_filter === $cat['slug'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($cat['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label small fw-bold">Region</label>
+                    <select name="region" class="form-select">
+                        <option value="">All Regions</option>
+                        <?php foreach ($all_regions as $reg): ?>
+                            <option value="<?= $reg['id'] ?>" <?= $region_filter == $reg['id'] ? 'selected' : '' ?>><?= htmlspecialchars($reg['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label small fw-bold">Sort By</label>
+                    <select name="sort" class="form-select">
+                        <option value="newest" <?= $sort_by == 'newest' ? 'selected' : '' ?>>Newest First</option>
+                        <option value="oldest" <?= $sort_by == 'oldest' ? 'selected' : '' ?>>Oldest First</option>
+                        <option value="title" <?= $sort_by == 'title' ? 'selected' : '' ?>>Title A-Z</option>
+                    </select>
+                </div>
+                <div class="col-lg-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-navy text-white flex-grow-1 rounded-pill" style="background-color: var(--navy);">Filter Results</button>
+                    <a href="gallery.php" class="btn btn-outline-secondary rounded-pill" title="Clear Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <main id="main-content" class="container py-5">
         <div class="row g-4 reveal">
             <?php if (empty($articles)): ?>
                 <div class="col-12 text-center py-5">

@@ -12,13 +12,23 @@ document.addEventListener('DOMContentLoaded', function() {
   document.documentElement.setAttribute('data-theme', savedTheme);
 
   if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
+    const toggleTheme = function() {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const newTheme = currentTheme === 'light' ? 'dark' : 'light';
       
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       console.log('Theme switched to:', newTheme);
+    };
+
+    themeToggle.addEventListener('click', toggleTheme);
+    
+    // Accessibility: Keyboard support for theme toggle
+    themeToggle.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleTheme();
+      }
     });
   }
 

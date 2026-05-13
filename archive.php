@@ -7,6 +7,11 @@ $region_filter = $_GET['region'] ?? null;
 $search_query = $_GET['q'] ?? null;
 $sort_by = $_GET['sort'] ?? 'newest';
 
+// Initialize variables for the UI
+$all_categories = [];
+$all_regions = [];
+$stories = [];
+
 try {
     // Fetch Categories for filter dropdown
     $catStmt = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
@@ -145,7 +150,7 @@ render_header("Living Archive", "archive");
     </div>
 
     <!-- Results Grid -->
-    <main class="container py-5">
+    <main id="main-content" class="container py-5">
         <div class="row g-4 reveal">
             <?php if (empty($stories)): ?>
                 <div class="col-12 text-center py-5">

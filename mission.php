@@ -74,7 +74,7 @@ render_header("Mission & Vision", "mission", $extra_head);
         </div>
     </header>
 
-    <main class="container py-5 mt-5">
+    <main id="main-content" class="container py-5 mt-5">
         <!-- The Core Commitment -->
         <section class="row g-4 mb-5 pb-5 reveal">
             <div class="col-lg-4">

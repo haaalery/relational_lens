@@ -1,17 +1,35 @@
 <?php
 /**
  * Security Utilities for Relational Lens
- * Implements CSRF Protection
  */
+
+// Harden Session Cookies
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_samesite', 'Strict');
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+        ini_set('session.cookie_secure', 1);
+    }
+    session_start();
+}
+
+/**
+ * Global input sanitization to prevent XSS
+ * @param string $data Raw input
+ * @return string Sanitized output
+ */
+function sanitize($data) {
+    if (is_array($data)) {
+        return array_map('sanitize', $data);
+    }
+    return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+}
 
 /**
  * Generate a CSRF token and store it in the session if one doesn't exist
  * @return string The token
  */
 function generate_csrf_token() {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
