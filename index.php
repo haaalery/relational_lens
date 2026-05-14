@@ -58,8 +58,8 @@ render_header("Home", "home", $leaflet_css);
     <main class="container py-5 mt-5">
         
         <!-- Featured Stories Section -->
-        <section id="featured" class="mb-5 pb-5 reveal">
-            <div class="d-flex justify-content-between align-items-end mb-5">
+        <section id="featured" class="mb-5 pb-5">
+            <div class="d-flex justify-content-between align-items-end mb-5 reveal">
                 <div>
                     <h2 class="display-5 playfair fw-bold text-navy mb-0">Featured Stories</h2>
                     <p class="text-muted mt-2">Hand-picked narratives from our global collective.</p>
@@ -69,14 +69,14 @@ render_header("Home", "home", $leaflet_css);
 
             <div class="row g-4">
                 <?php if (empty($featuredStories)): ?>
-                    <div class="col-12 text-center py-5">
+                    <div class="col-12 text-center py-5 reveal">
                         <i class="bi bi-camera-reels display-1 text-muted opacity-25 mb-4 d-block"></i>
                         <h3 class="playfair fw-bold text-muted">Awaiting Narratives</h3>
                         <p class="text-muted">New featured stories will be appearing here shortly. Explore the <a href="archive.php" class="text-terracotta fw-bold">full archive</a>.</p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($featuredStories as $story): ?>
-                        <div class="col-md-4">
+                        <div class="col-md-4 reveal">
                             <div class="story-card h-100 d-flex flex-column">
                                 <div class="card-img-wrapper">
                                     <img src="<?= htmlspecialchars($story['thumbnail_url'] ?: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop') ?>" alt="<?= htmlspecialchars($story['title']) ?>" loading="lazy">
@@ -140,22 +140,22 @@ render_header("Home", "home", $leaflet_css);
         </div>
 
         <!-- Insights & Reflections (Articles) -->
-        <section id="insights" class="py-5 reveal">
-            <div class="text-center mb-5">
+        <section id="insights" class="py-5">
+            <div class="text-center mb-5 reveal">
                 <h2 class="display-5 playfair fw-bold text-navy">The Gallery</h2>
                 <p class="text-muted mx-auto" style="max-width: 600px;">Critical reflections and scholarly insights from practitioners and researchers.</p>
             </div>
 
             <div class="row g-4">
                 <?php if (empty($articles)): ?>
-                    <div class="col-12 text-center py-5">
+                    <div class="col-12 text-center py-5 reveal">
                         <i class="bi bi-journal-text display-1 text-muted opacity-25 d-block mb-4"></i>
                         <h3 class="playfair fw-bold text-muted">Awaiting Reflections</h3>
                         <p class="text-muted mb-4">No articles found. Be the first to <a href="submit_article.php" class="text-terracotta fw-bold">contribute</a>.</p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($articles as $article): ?>
-                        <div class="col-md-4">
+                        <div class="col-md-4 reveal">
                             <div class="article-card h-100">
                                 <div class="card-img-wrapper">
                                     <a href="article.php?slug=<?= $article['slug'] ?>">

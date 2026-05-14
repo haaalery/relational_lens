@@ -150,9 +150,9 @@ render_header("The Gallery", "gallery");
     </div>
 
     <main id="main-content" class="container py-5">
-        <div class="row g-4 reveal">
+        <div class="row g-4">
             <?php if (empty($articles)): ?>
-                <div class="col-12 text-center py-5">
+                <div class="col-12 text-center py-5 reveal">
                     <i class="bi bi-journal-richtext display-1 text-muted opacity-25 mb-4 d-block"></i>
                     <h3 class="playfair fw-bold text-muted">Awaiting Reflections</h3>
                     <p class="text-muted">The gallery is currently being curated. Check back soon for new scholarly insights.</p>
@@ -160,7 +160,7 @@ render_header("The Gallery", "gallery");
                 </div>
             <?php else: ?>
                 <?php foreach ($articles as $art): ?>
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-4 col-md-6 reveal">
                         <div class="article-card h-100">
                             <div class="card-img-wrapper">
                                 <?php if ($art['category_name']): ?>

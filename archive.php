@@ -151,9 +151,9 @@ render_header("Living Archive", "archive");
 
     <!-- Results Grid -->
     <main id="main-content" class="container py-5">
-        <div class="row g-4 reveal">
+        <div class="row g-4">
             <?php if (empty($stories)): ?>
-                <div class="col-12 text-center py-5">
+                <div class="col-12 text-center py-5 reveal">
                     <i class="bi bi-search display-1 text-muted opacity-25 mb-4 d-block"></i>
                     <h3 class="playfair fw-bold text-muted">The Archive is Quiet</h3>
                     <p class="text-muted">No stories matched your current search filters.</p>
@@ -161,7 +161,7 @@ render_header("Living Archive", "archive");
                 </div>
             <?php else: ?>
                 <?php foreach ($stories as $story): ?>
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-4 col-md-6 reveal">
                         <div class="story-card h-100">
                             <div class="card-img-wrapper">
                                 <img src="<?= htmlspecialchars($story['thumbnail_url'] ?: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1000&auto=format&fit=crop') ?>" alt="Story Thumbnail" loading="lazy">

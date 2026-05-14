@@ -113,12 +113,54 @@
   background: linear-gradient(to right, transparent, var(--muted), transparent);
 }
 
+/* Skeleton Loading Shimmer */
+.skeleton-loader {
+  background: linear-gradient(
+    90deg,
+    var(--card-bg) 25%,
+    var(--bg-color) 50%,
+    var(--card-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Custom Cinematic Cursor */
+.cursor-follower {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background-color: var(--terracotta);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease, transform 0.1s ease-out;
+  transform: translate(-50%, -50%);
+  display: none; /* Shown via JS */
+}
+
+@media (pointer: fine) {
+  .cursor-follower { display: block; }
+}
+
+.cursor-follower.active {
+  width: 60px;
+  height: 60px;
+  background-color: rgba(197, 125, 84, 0.2);
+  border: 1px solid var(--terracotta);
+}
+
 /* Standardized Card Images */
 .card-img-wrapper {
   overflow: hidden;
   position: relative;
   aspect-ratio: 16/9;
-  background: #eee;
+  background: var(--card-bg);
 }
 
 .card-img-wrapper img {
