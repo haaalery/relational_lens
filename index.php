@@ -236,17 +236,46 @@ $map_scripts = '
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         const theme = document.documentElement.getAttribute("data-theme") || "light";
-        const map = L.map("map").setView([20, 0], 2);
+        
+        // Initialize map with boundary restrictions to prevent endless scrolling
+        const map = L.map("map", {
+            minZoom: 2,
+            maxBounds: [[-85, -180], [85, 180]],
+            maxBoundsViscosity: 1.0,
+            worldCopyJump: false
+        }).setView([20, 0], 2);
         
         const tileUrl = theme === "dark" 
             ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
             
-        L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(map);
+        L.tileLayer(tileUrl, { 
+            maxZoom: 19,
+            noWrap: true, // Prevents the map from repeating horizontally
+            attribution: "&copy; CARTO" 
+        }).addTo(map);
         
         const mapData = ' . json_encode($mapData) . ';
         mapData.forEach(p => {
-            if(p.lat && p.lng) L.marker([p.lat, p.lng]).addTo(map).bindPopup(`<b>${p.title}</b><br><a href="story.php?slug=${p.slug}">Watch</a>`);
+            if(p.lat && p.lng) {
+                // Use CircleMarkers for a cleaner, "fixed" marking look
+                const marker = L.circleMarker([parseFloat(p.lat), parseFloat(p.lng)], {
+                    radius: 7,
+                    fillColor: "#C57D54",
+                    color: "#fff",
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <div class="map-popup-body">
+                        <h6>${p.title}</h6>
+                        <p class="small text-muted mb-2">${p.region}</p>
+                        <a href="story.php?slug=${p.slug}" class="btn btn-sm btn-navy text-white w-100 rounded-pill" style="background: #0E3A47; font-size: 0.7rem;">Watch Story</a>
+                    </div>
+                `);
+            }
         });
     </script>
 ';

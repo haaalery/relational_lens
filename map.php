@@ -128,6 +128,7 @@ $map_scripts = '
             : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
 
         L.tileLayer(tileUrl, {
+            noWrap: true, // Prevents horizontal repetition
             attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
         }).addTo(map);
 
@@ -136,7 +137,8 @@ $map_scripts = '
 
         stories.forEach(s => {
             if(s.lat && s.lng) {
-                const marker = L.circleMarker([s.lat, s.lng], {
+                // Consistent styling with home page markers
+                const marker = L.circleMarker([parseFloat(s.lat), parseFloat(s.lng)], {
                     radius: 8,
                     fillColor: "#C57D54",
                     color: "#fff",
